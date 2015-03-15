@@ -4,4 +4,7 @@ class StaticPagesController < ApplicationController
 
   def stocks
   end
+
+  def about
+  end
 end
