@@ -3,13 +3,27 @@ class StaticPagesController < ApplicationController
   end
 
   def stocks
+    require 'open-uri'
+    #pull json from yahoo finance and parse
+    url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
+    file = open(url).read
+    data = JSON.parse(file)
+    #put results into arrays
+    array1 = data['query']['results']
+    array2 = array1['quote']
+    @array3 = array2[0]['symbol'];
+    #data = JSON.parse file.read
+
+    #puts data["query"]
+    #puts open('https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys').read
+    #parsed["query"]["diagnostics"]
+
     # Construct the URL we'll be calling
-    request_uri = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
-    request_query = ''
-    url = "#{request_uri}#{request_query}"
+#    request_uri = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
+    #url = "{request_uri}"
 
     # Actually fetch the contents of the remote URL as a String.
-    buffer = open(url).read
+    #buffer = open(url).read
 
     # Sample JSON response from fake API endpoint (a simple app running on my machine), but you can easily build it. Credit goes to Michael Hartl for the stellar "Build Twitter in Rails" tutorial:
     #
@@ -39,10 +53,15 @@ class StaticPagesController < ApplicationController
     #result = result.sample(5)
 
     # Loop through each of the elements in the 'result' Array & print some of their attributes.
-    result.each do |user|
-      puts "#{user['id']}\t#{user['name']}\t#{user['email']}"
-      puts "Registered: #{user['created_at']}\n\n"
-    end
+    #result.each do |user|
+    #  puts "#{user['id']}\t#{user['name']}\t#{user['email']}"
+    #  puts "Registered: #{user['created_at']}\n\n"
+    #end
+
+    #data.each do |quote|
+    #  puts "#{user['id']}\t#{user['name']}\t#{user['email']}"
+    #  puts "Registered: #{user['created_at']}\n\n"
+    #end
 
 
     # Expected output in this format:
