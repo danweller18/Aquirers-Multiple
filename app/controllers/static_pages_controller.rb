@@ -11,7 +11,24 @@ class StaticPagesController < ApplicationController
     #put results into arrays
     array1 = data['query']['results']
     array2 = array1['quote']
-    @array3 = array2[0]['symbol'];
+
+    #create symbol array and push symbols into it
+    symbol = []
+    for i in 0..3
+      j = array2[i]['symbol'];
+      symbol.push(j)
+    end
+    #Global variable holds symbol array
+    @Symbols = symbol
+
+    #create symbol array and push symbols into it
+    price = []
+    for i in 0..3
+      j = array2[i]['LastTradePriceOnly'];
+      price.push(j)
+    end
+    #Global variable holds symbol array
+    @Prices = price
     #data = JSON.parse file.read
 
     #puts data["query"]
