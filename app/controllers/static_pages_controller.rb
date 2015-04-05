@@ -4,6 +4,71 @@ class StaticPagesController < ApplicationController
 
   def stocks
     require 'open-uri'
+    require 'net/ftp'
+
+    # Login to the FTP server
+    ftp = Net::FTP.new('ftp.nasdaqtrader.com')
+    ftp.login('anonymous', '')
+
+    # Switch to the desired directory
+    ftp.chdir('SymbolDirectory')
+
+    # Get the file we need and save it to our 'ftp_tickers' directory
+    ftp.getbinaryfile('nasdaqtraded.txt', 'ftp_tickers/nasdaqtraded.txt')
+
+    #declare arrays
+    lines = []
+    nsymbol = []
+    sname = []
+    etf = []
+    testv = []
+    financials = []
+    alist = []
+    filename = "ftp_tickers/nasdaqtraded.txt"
+    #open file read line by line
+    File.open(filename) do |f|
+      f.each_line do |line|
+        #push line into array
+        j = line
+        lines.push(j)
+        #collect symbols from line
+        nsymbol << line.split('|')[1, 1].map(&:lstrip)
+        #collect security name from line
+        sname << line.split('|')[2, 1].map(&:lstrip)
+        #collect etf value from line
+        etf << line.split('|')[5, 1].map(&:lstrip)
+        #collect test or not value from line
+        if line.split('|')[7, 1] != nil
+          testv << line.split('|')[7, 1].map(&:lstrip)
+        end
+        #collect Financial Status
+        if line.split('|')[8, 1] != nil
+          financials << line.split('|')[8, 1].map(&:lstrip)
+        end
+      end
+      #itterate through etf
+      #etf.each do |x|
+        #delete etf value if it is ETF
+      #  x.delete('Y')
+      #end
+
+      alist.push(nsymbol, sname, etf, testv, financials)
+
+      #etf.each do |x|
+      #  if x == 'Y'
+
+      #end
+
+      #pass variables to html.erb
+      @Nasdaq = lines
+      @nsymbol = nsymbol
+      @sname = sname
+      @etf = etf
+      @testv = testv
+      @financials = financials
+      @alist = alist
+    end #end of File open
+
     #pull json from yahoo finance and parse
     url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
     file = open(url).read
@@ -21,19 +86,15 @@ class StaticPagesController < ApplicationController
     #Global variable holds symbol array
     @Symbols = symbol
 
-    #create symbol array and push symbols into it
+    #create price array and push prices into it
     price = []
     for i in 0..3
       j = array2[i]['LastTradePriceOnly'];
       price.push(j)
     end
-    #Global variable holds symbol array
+    #Global variable holds prices array
     @Prices = price
     #data = JSON.parse file.read
-
-    #puts data["query"]
-    #puts open('https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys').read
-    #parsed["query"]["diagnostics"]
 
     # Construct the URL we'll be calling
 #    request_uri = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
