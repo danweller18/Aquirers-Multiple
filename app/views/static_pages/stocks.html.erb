@@ -21,13 +21,14 @@
   <% end %>
 </table>
 
-<br>
-
-ETF: <%= @etf[8] %>
 <br><br>
 
-ARRAY of arrays to loop through: <%= @alist[0][1] %> Use i in alist[i][1] as
+<br><%#= @alist %>
+
+ARRAY of arrays to loop through: <%= @alist[1][1] %> Use i in alist[i][1] as
 column and i in alist[1][i] for rows
+<br><br>
+
 <br><br>
 
 <%= @nsymbol[0] %><%= @sname[0] %><%= @etf[0] %><%= @testv[0] %><%= @financials[0] %>
@@ -39,12 +40,3 @@ column and i in alist[1][i] for rows
   <%= @nsymbol[i] %><%= @sname[i] %><%= @etf[i] %><%= @testv[i] %><%= @financials[i] %>
   <br>
 <% end %>
-
-<!-- don't think I need below this line -->
-<%#= @Nasdaq[0] %>
-<br><br>
-
-<%# for i in 0..9000 %>
-  <%#= @Nasdaq[i] %>
-  <br>
-<%# end %>
