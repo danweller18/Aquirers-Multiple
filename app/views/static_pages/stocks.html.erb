@@ -28,6 +28,12 @@
 ARRAY of arrays to loop through: <%= @alist[1][1] %> Use i in alist[i][1] as
 column and i in alist[1][i] for rows
 <br><br>
+List symbols:<br>
+<% (0...@symb.length).each do |i| %>
+  <p><%= @symb[i] %>  <%= @names[i] %></p>
+<% end %>
+
+<%#= @symb %>
 
 <br><br>
 

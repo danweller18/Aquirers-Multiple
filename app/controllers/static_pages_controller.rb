@@ -3,6 +3,7 @@ class StaticPagesController < ApplicationController
   end
 
   def stocks
+    require 'cgi'
     require 'open-uri'
     require 'net/ftp'
 
@@ -24,6 +25,8 @@ class StaticPagesController < ApplicationController
     testv = []
     financials = []
     alist = []
+    symb = []
+    names = []
     filename = "ftp_tickers/nasdaqtraded.txt"
     #open file read line by line
     File.open(filename) do |f|
@@ -46,11 +49,13 @@ class StaticPagesController < ApplicationController
           financials << line.split('|')[8, 1].map(&:lstrip)
         end
       end
-      #itterate through etf
-      #etf.each do |x|
-        #delete etf value if it is ETF
-      #  x.delete('Y')
-      #end
+
+      #make everything flat
+      nsymbol.flatten!
+      sname.flatten!
+      etf.flatten!
+      testv.flatten!
+      financials.flatten!
 
       #create one array with all other arrays
       alist.push(nsymbol, sname, etf, testv, financials)
@@ -65,7 +70,10 @@ class StaticPagesController < ApplicationController
             alist[2].delete_at(i)
             alist[3].delete_at(i)
             alist[4].delete_at(i)
-          elsif (alist[1][i] || '').include? "Preferred"
+          elsif ((alist[1][i] || '').include? 'Preferred') ||
+            ((alist[1][i] || '').include? 'Warrant') ||
+            ((alist[1][i] || '').include? 'Notes') ||
+            ((alist[1][i] || '').include? 'Perp')
             alist[0].delete_at(i)
             alist[1].delete_at(i)
             alist[2].delete_at(i)
@@ -92,12 +100,22 @@ class StaticPagesController < ApplicationController
 
       #read through arrays
       (0...nsymbol.length).each do |i|
-        (0...alist.length).each do |j|
-          puts alist[j][i]
-        end
+        symb.push(alist[0][i])
+        names.push(alist[1][i])
       end
 
+      #remove first + last from array
+      symb.pop
+      symb.shift
+      names.pop
+      names.shift
 
+      #format symbols to be like "AAPL, GOOG"
+      #symb.map { |i| i.to_s }.join(",")
+
+#      escaped_page = CGI::escape(symb.map { |i| i.to_s }.join(","))
+
+      puts symb.size
 
       #pass variables to html.erb
       @Nasdaq = lines
@@ -107,10 +125,13 @@ class StaticPagesController < ApplicationController
       @testv = testv
       @financials = financials
       @alist = alist
+      @symb = symb
+      @names = names
     end #end of File open
 
     #pull json from yahoo finance and parse
-    url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
+    url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%2CAAPL%2CGOOG%2CMSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
+    #sample to put in: %22YHOO%2CAAPL%2CGOOG%2CMSFT%22
     file = open(url).read
     data = JSON.parse(file)
     #put results into arrays
