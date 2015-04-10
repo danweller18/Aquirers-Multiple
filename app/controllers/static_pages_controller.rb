@@ -27,6 +27,11 @@ class StaticPagesController < ApplicationController
     alist = []
     symb = []
     names = []
+    etfs = []
+    testvs = []
+    financialss = []
+    symb1 = []
+    symb2 = []
     filename = "ftp_tickers/nasdaqtraded.txt"
     #open file read line by line
     File.open(filename) do |f|
@@ -73,7 +78,11 @@ class StaticPagesController < ApplicationController
           elsif ((alist[1][i] || '').include? 'Preferred') ||
             ((alist[1][i] || '').include? 'Warrant') ||
             ((alist[1][i] || '').include? 'Notes') ||
-            ((alist[1][i] || '').include? 'Perp')
+            ((alist[1][i] || '').include? 'Perp') ||
+            ((alist[1][i] || '').include? 'Debentures') ||
+            ((alist[1][i] || '').include? 'ETN') ||
+            ((alist[1][i] || '').include? 'Exchange') ||
+            ((alist[1][i] || '').include? 'Futures')
             alist[0].delete_at(i)
             alist[1].delete_at(i)
             alist[2].delete_at(i)
@@ -102,6 +111,9 @@ class StaticPagesController < ApplicationController
       (0...nsymbol.length).each do |i|
         symb.push(alist[0][i])
         names.push(alist[1][i])
+        etfs.push(alist[2][i])
+        testvs.push(alist[3][i])
+        financialss.push(alist[4][i])
       end
 
       #remove first + last from array
@@ -109,13 +121,29 @@ class StaticPagesController < ApplicationController
       symb.shift
       names.pop
       names.shift
+      etfs.pop
+      etfs.shift
+      testvs.pop
+      testvs.shift
+      financialss.pop
+      financialss.shift
+
+      #split array into two new arrays
+      (0...symb.size/2).each do |i|
+        symb1.push(symb[i])
+      end
+      (symb.size/2...symb.size).each do |i|
+        symb2.push(symb[i])
+      end
 
       #format symbols to be like "AAPL, GOOG"
       #symb.map { |i| i.to_s }.join(",")
 
 #      escaped_page = CGI::escape(symb.map { |i| i.to_s }.join(","))
 
-      puts symb.size
+      p "Original #{symb.size}"
+      p "symb1 #{symb1.size}"
+      p "symb2 #{symb2.size}"
 
       #pass variables to html.erb
       @Nasdaq = lines
@@ -127,6 +155,9 @@ class StaticPagesController < ApplicationController
       @alist = alist
       @symb = symb
       @names = names
+      @etfs = etfs
+      @testvs = testvs
+      @financialss = financialss
     end #end of File open
 
     #pull json from yahoo finance and parse
