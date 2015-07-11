@@ -1,10 +1,5 @@
 class StaticPagesController < ApplicationController
   def home
-  end
-
-  def stocks
-    require 'cgi'
-    require 'open-uri'
     require 'net/ftp'
 
     # Login to the FTP server
@@ -16,6 +11,19 @@ class StaticPagesController < ApplicationController
 
     # Get the file we need and save it to our 'ftp_tickers' directory
     ftp.getbinaryfile('nasdaqtraded.txt', 'ftp_tickers/nasdaqtraded.txt')
+  end
+
+  def stocks
+    require 'cgi'
+    require 'open-uri'
+    require 'net/ftp'
+    require "erb"
+    require 'oauth_util.rb'
+    require 'net/http'
+
+    #o = OauthUtil.new
+    #o.consumer_key = "dj0yJmk9ZU8zdHBVZUJycFRnJmQ9WVdrOVJXaFdSRTAxTnpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD00Mg--"
+    #o.consumer_secret = "64dabdfa4fe63f40317d1496501938d45c6ce699"
 
     #declare arrays
     lines = []
@@ -32,6 +40,8 @@ class StaticPagesController < ApplicationController
     financialss = []
     symb1 = []
     symb2 = []
+    symb3 = []
+    symb4 = []
     filename = "ftp_tickers/nasdaqtraded.txt"
     #open file read line by line
     File.open(filename) do |f|
@@ -128,12 +138,18 @@ class StaticPagesController < ApplicationController
       financialss.pop
       financialss.shift
 
-      #split array into two new arrays
-      (0...symb.size/2).each do |i|
+      #split array into four new arrays
+      (0...symb.size/4).each do |i|
         symb1.push(symb[i])
       end
-      (symb.size/2...symb.size).each do |i|
+      (symb.size/4...((symb.size/4)*2)).each do |i|
         symb2.push(symb[i])
+      end
+      (((symb.size/4)*2)...((symb.size/4)*3)).each do |i|
+        symb3.push(symb[i])
+      end
+      (((symb.size/4)*3)...((symb.size/4)*4)).each do |i|
+        symb4.push(symb[i])
       end
 
       #format symbols to be like "AAPL, GOOG"
@@ -144,45 +160,108 @@ class StaticPagesController < ApplicationController
       p "Original #{symb.size}"
       p "symb1 #{symb1.size}"
       p "symb2 #{symb2.size}"
+      p "symb3 #{symb3.size}"
+      p "symb4 #{symb4.size}"
+
+      p ERB::Util.url_encode "My Blod & Your Blog"
+
+    #@symb1 = symb1
+      #p ERB::Util.url_encode symb1.map { |i| i.to_s }.join(",")
+
+    #  @urlbeg = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote(0%2C5000)%20where%20symbol%20in%20(%22"
+
+    #  @urlend = "%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys"
+
+      #{foo: 'asd asdf', bar: '"<#$dfs'}.to_param
+
+      #puts "#{urlbeg}#{ERB::Util.url_encode symb1.map { |i| i.to_s }.join(",")}#{urlend}"
 
       #pass variables to html.erb
-      @Nasdaq = lines
-      @nsymbol = nsymbol
-      @sname = sname
-      @etf = etf
-      @testv = testv
-      @financials = financials
-      @alist = alist
-      @symb = symb
-      @names = names
-      @etfs = etfs
-      @testvs = testvs
-      @financialss = financialss
+    #  @Nasdaq = lines
+    #  @nsymbol = nsymbol
+    #  @sname = sname
+    #  @etf = etf
+    #  @testv = testv
+    #  @financials = financials
+    #  @alist = alist
+    #  @symb = symb
+    #  @names = names
+    #  @etfs = etfs
+    #  @testvs = testvs
+    #  @financialss = financialss
     end #end of File open
 
-    #pull json from yahoo finance and parse
+    #p  url = "#{@urlbeg}#{ERB::Util.url_encode @params.map { |i| i.to_s }.join(",")}#{@urlend}"
+
     url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%2CAAPL%2CGOOG%2CMSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
+    parsed_url = URI.parse( url )
+
+    #p parsed_url.query
+
+    p @params
+
+    consumer = OAuth::Consumer.new("dj0yJmk9ZU8zdHBVZUJycFRnJmQ9WVdrOVJXaFdSRTAxTnpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD00Mg--", "64dabdfa4fe63f40317d1496501938d45c6ce699", :site => "https://query.yahooapis.com/")
+
+    Net::HTTP.start( parsed_url.host ) { | http |
+      req = Net::HTTP::Get.new "#{ parsed_url.path }?#{ o.sign(parsed_url).query_string }"
+      response = http.request(req)
+      @data1 = response.body
+    }
+
+    #req = Net::HTTP.get_response(parsed_url)
+
+    #render :text => "<pre>" + JSON.pretty_generate(data1)
+
+
+#    Net::HTTP.start( parsed_url.host ) { | http |
+      #req = Net::HTTP::Get.new "#{ parsed_url.path }?#{ o.sign(parsed_url).query_string }"
+      #response = http.request(req)
+      #print response.read_body
+#    }
+
+    #pull json from yahoo finance and parse
+    #url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%2CAAPL%2CGOOG%2CMSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
     #sample to put in: %22YHOO%2CAAPL%2CGOOG%2CMSFT%22
-    file = open(url).read
-    data = JSON.parse(file)
+    #file = open(url).read
+    #data = JSON.parse(file)
+#    data = JSON.parse(response.read_body)
+
+    p data = JSON.parse(@data1)
+
+    #p data
+    render :text => "<pre>" + JSON.pretty_generate(data)
+
+
+
     #put results into arrays
     array1 = data['query']['results']
-    array2 = array1['quote']
+    #check for nil
+    unless array1.nil?
+      array2 = array1['quote']
+    end
+
+    p array2[0]['symbol']
 
     #create symbol array and push symbols into it
     symbol = []
+    #for i in 0..@params.size
     for i in 0..3
-      j = array2[i]['symbol'];
-      symbol.push(j)
+      unless array2.nil?
+        j = array2[i]['symbol'];
+        symbol.push(j)
+      end
     end
     #Global variable holds symbol array
     @Symbols = symbol
 
     #create price array and push prices into it
     price = []
+#    for i in 0..@params.size
     for i in 0..3
-      j = array2[i]['LastTradePriceOnly'];
-      price.push(j)
+      unless array2.nil?
+        j = array2[i]['LastTradePriceOnly'];
+        price.push(j)
+      end
     end
     #Global variable holds prices array
     @Prices = price
@@ -191,5 +270,10 @@ class StaticPagesController < ApplicationController
   end
 
   def about
+  end
+
+  def new
+    render :text => "<pre>" + env["omniauth.auth"].to_yaml
+    #raise request.env["omniauth.auth"].to_yaml
   end
 end

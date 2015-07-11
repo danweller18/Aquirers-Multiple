@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
+gem 'oauth'
+gem 'omniauth'
+gem 'omniauth-yahoo'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.0'
