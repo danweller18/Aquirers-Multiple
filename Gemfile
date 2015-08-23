@@ -1,5 +1,10 @@
 source 'https://rubygems.org'
 
+#pry
+gem 'pry', '~> 0.10.1'
+#savon
+gem 'savon', '~> 2.10.0'
+
 gem 'oauth'
 gem 'omniauth'
 gem 'omniauth-yahoo'

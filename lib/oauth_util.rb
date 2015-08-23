@@ -54,7 +54,12 @@ class OauthUtil
   # @ref http://oauth.net/core/1.0/#rfc.section.A.5.1
   def query_string
     pairs = []
+
+    url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22YHOO%2CAAPL%2CGOOG%2CMSFT%22)&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
+    parsed_url = URI.parse( url )
+
     @params = parsed_url.query
+    puts @params
     @params.sort.each { | key, val |
       pairs.push( "#{ percent_encode( key ) }=#{ percent_encode( val.to_s ) }" )
     }

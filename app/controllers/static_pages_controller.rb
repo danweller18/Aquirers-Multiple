@@ -1,7 +1,8 @@
 class StaticPagesController < ApplicationController
   def home
+=begin
     require 'net/ftp'
-
+    
     # Login to the FTP server
     ftp = Net::FTP.new('ftp.nasdaqtrader.com')
     ftp.login('anonymous', '')
@@ -11,19 +12,23 @@ class StaticPagesController < ApplicationController
 
     # Get the file we need and save it to our 'ftp_tickers' directory
     ftp.getbinaryfile('nasdaqtraded.txt', 'ftp_tickers/nasdaqtraded.txt')
+=end
   end
 
   def stocks
-    require 'cgi'
+    #keep this
+    require 'stocks.rb'
+
+=begin    require 'cgi'
     require 'open-uri'
     require 'net/ftp'
     require "erb"
     require 'oauth_util.rb'
     require 'net/http'
 
-    #o = OauthUtil.new
-    #o.consumer_key = "dj0yJmk9ZU8zdHBVZUJycFRnJmQ9WVdrOVJXaFdSRTAxTnpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD00Mg--"
-    #o.consumer_secret = "64dabdfa4fe63f40317d1496501938d45c6ce699"
+    o = OauthUtil.new
+    o.consumer_key = "dj0yJmk9ZU8zdHBVZUJycFRnJmQ9WVdrOVJXaFdSRTAxTnpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD00Mg--"
+    o.consumer_secret = "9b192981a36df79e32a93f60cfa1f8bedee4f60e"
 
     #declare arrays
     lines = []
@@ -200,7 +205,7 @@ class StaticPagesController < ApplicationController
 
     p @params
 
-    consumer = OAuth::Consumer.new("dj0yJmk9ZU8zdHBVZUJycFRnJmQ9WVdrOVJXaFdSRTAxTnpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD00Mg--", "64dabdfa4fe63f40317d1496501938d45c6ce699", :site => "https://query.yahooapis.com/")
+    #consumer = OAuth::Consumer.new("dj0yJmk9ZU8zdHBVZUJycFRnJmQ9WVdrOVJXaFdSRTAxTnpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD00Mg--", "64dabdfa4fe63f40317d1496501938d45c6ce699", :site => "https://query.yahooapis.com/")
 
     Net::HTTP.start( parsed_url.host ) { | http |
       req = Net::HTTP::Get.new "#{ parsed_url.path }?#{ o.sign(parsed_url).query_string }"
@@ -267,6 +272,7 @@ class StaticPagesController < ApplicationController
     @Prices = price
 
     puts "Finished!\n\n"
+=end
   end
 
   def about
